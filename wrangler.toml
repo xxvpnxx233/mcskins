@@ -1,8 +1,0 @@
-﻿name = "mc-apk-skin-builder"
-main = "src/index.js"
-compatibility_date = "2026-07-07"
-compatibility_flags = ["nodejs_compat"]
-
-# 部署前建议设置密钥：
-# wrangler secret put SIGN_KEY_PEM
-# wrangler secret put SIGN_CERT_PEM
