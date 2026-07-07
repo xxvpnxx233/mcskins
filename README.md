@@ -1,5 +1,11 @@
 ﻿# MC APK Skin Builder - Cloudflare Worker 版
 
+已配置输出包名：
+
+```text
+com.mojang.xxvpnxx
+```
+
 这个项目可以直接导入 Cloudflare Workers：
 
 1. 把本目录上传到 GitHub/GitLab。
@@ -11,44 +17,40 @@
 本项目提供：
 
 - `/`：网页上传界面
-- `/api/build`：上传 APK、custom 皮肤包、persona 皮肤包，自动注入到 APK 的 `*/skin_packs/custom/` 和 `*/skin_packs/persona/`
+- `/api/build`：上传 APK、custom 皮肤包、persona 皮肤包
+- 自动导入到 APK 的 `*/skin_packs/custom/` 和 `*/skin_packs/persona/`
+- 自动把 AndroidManifest.xml 里的包名改成 `com.mojang.xxvpnxx`
 - 输出重新 ZIP 并进行 APK v1/JAR 签名
+
+## 已生成签名密钥
+
+我已经帮你生成好了：
+
+```text
+secrets/SIGN_KEY_PEM.txt
+secrets/SIGN_CERT_PEM.txt
+```
+
+部署到 Cloudflare 后，需要进入 Worker 的设置里添加两个 Secret：
+
+- 变量名：`SIGN_KEY_PEM`，内容复制 `secrets/SIGN_KEY_PEM.txt` 全部文本
+- 变量名：`SIGN_CERT_PEM`，内容复制 `secrets/SIGN_CERT_PEM.txt` 全部文本
+
+Cloudflare 网页路径：
+
+```text
+Workers & Pages → 你的 Worker → Settings → Variables → Add variable → Secret
+```
 
 ## Cloudflare 限制
 
 Cloudflare Worker 不能运行 `apktool`、`zipalign`、`apksigner` 这类系统二进制，所以这里使用纯 JS：
 
 - `fflate` 修改 APK ZIP
+- 直接修改 binary AndroidManifest.xml 字符串池里的包名
 - `node-forge` 生成 v1/JAR 签名
 
 如果 APK 或目标 Android 环境强制要求 APK Signature Scheme v2/v3/v4，则需要把 `/api/build` 改成转发到 VPS/容器后端使用 Android Build Tools 签名。
-
-## 签名密钥
-
-部署后在 Cloudflare 设置两个 Secret：
-
-```bash
-wrangler secret put SIGN_KEY_PEM
-wrangler secret put SIGN_CERT_PEM
-```
-
-如果不设置，网页会提示缺少签名密钥。
-
-`SIGN_KEY_PEM` 是 RSA 私钥 PEM，例如：
-
-```text
------BEGIN RSA PRIVATE KEY-----
-...
------END RSA PRIVATE KEY-----
-```
-
-`SIGN_CERT_PEM` 是 X.509 证书 PEM，例如：
-
-```text
------BEGIN CERTIFICATE-----
-...
------END CERTIFICATE-----
-```
 
 ## 表单字段
 
